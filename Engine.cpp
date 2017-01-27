@@ -155,7 +155,7 @@ void Engine::run()
 
 		// Render
 		// Clear the colorbuffer
-		glClearColor(0,0,0,0);
+		glClearColor(255.0f,255.0f,255.0f,255.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Activate shader
@@ -199,7 +199,7 @@ void Engine::run()
 			glBindVertexArray(object->VAO);
 
 			glm::mat4 model;
-			model = glm::translate(model, glm::vec3(5, 10, 5));
+			model = glm::translate(model, glm::vec3(object->getX(), object->getY(), object->getZ()));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 			object->render();

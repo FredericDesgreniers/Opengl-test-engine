@@ -27,7 +27,7 @@ WorldObject* InputDecoder::decodeWorldObject()
 			break;
 		}
 	}
-	return new WorldObject(0, 0);
+	return new WorldObject(0,0 , 0);
 }
 
 WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file)
@@ -78,7 +78,7 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file)
 		std::cout << x << ", " << y << ", " << z << std::endl;
 	}
 
-	TransitionalSweepObject* obj = new TransitionalSweepObject(0, 0, profileCurve, trajectoryCurve);
+	TransitionalSweepObject* obj = new TransitionalSweepObject(0, 0,0, profileCurve, trajectoryCurve);
 
 	return obj;
 }

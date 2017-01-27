@@ -9,7 +9,7 @@
 class TransitionalSweepObject:public WorldObject
 {
 public:
-	TransitionalSweepObject(int x, int y, std::vector<glm::vec3*>* profileCurve, std::vector<glm::vec3*>* trajectoryCurve);
+	TransitionalSweepObject(int x, int y, int z, std::vector<glm::vec3*>* profileCurve, std::vector<glm::vec3*>* trajectoryCurve);
 	
 	void render() override;
 

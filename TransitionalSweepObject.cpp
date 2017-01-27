@@ -4,7 +4,7 @@
 #include <string>
 
 
-TransitionalSweepObject::TransitionalSweepObject(int x, int y, std::vector<glm::vec3*>* profileCurve, std::vector<glm::vec3*>* trajectoryCurve):WorldObject(x,y)
+TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vector<glm::vec3*>* profileCurve, std::vector<glm::vec3*>* trajectoryCurve):WorldObject(x,y,z)
 {
 	program = new Shader("a1Shader.vs", "a1Shader.fs");
 	size = profileCurve->size() * trajectoryCurve->size() * 3;

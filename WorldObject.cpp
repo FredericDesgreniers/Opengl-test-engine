@@ -1,7 +1,7 @@
 #include "WorldObject.h"
 #include <iostream>
 
-WorldObject::WorldObject(int x, int y):x(x), y(y)
+WorldObject::WorldObject(int x, int y, int z):x(x), y(y), z(z)
 {
 	
 }
@@ -15,6 +15,12 @@ int WorldObject::getY()
 {
 	return x;
 }
+
+int WorldObject::getZ()
+{
+	return z;
+}
+
 
 void WorldObject::render()
 {
