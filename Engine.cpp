@@ -33,7 +33,8 @@ void Engine::initialize()
 
 	camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-	world = new World(0, 0);
+	world = new World(100,100);
+	world->generateRoads();
 	InputDecoder inputDecoder("input_a1.txt");
 	world->spawnWorldObject(inputDecoder.decodeWorldObject());
 }
@@ -90,7 +91,11 @@ void Engine::loadTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// Load, create texture and generate mipmaps
 	int width, height;
-	unsigned char* image = SOIL_load_image("metal.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+	unsigned char* image = SOIL_load_image("grass.jpg", &width, &height, 0, SOIL_LOAD_RGB);
+	if (image == NULL) {
+		std::cout << "An error occurred while loading image." << SOIL_last_result() << std::endl;
+
+	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
@@ -107,7 +112,7 @@ void Engine::loadTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// Load, create texture and generate mipmaps
-	image = SOIL_load_image("awesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
+	image = SOIL_load_image("metal.jpg", &width, &height, 0, SOIL_LOAD_RGB);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
@@ -130,27 +135,14 @@ void Engine::setupVertexes()
 	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
-	// TexCoord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
+
 
 	glBindVertexArray(0); // Unbind VAO
 }
 
 void Engine::run()
 {
-	std::vector<std::vector<Tile*>*>* tiles = new std::vector<std::vector<Tile*>*>();
-	for(int x=0; x < 25; x++)
-	{
-		std::vector<Tile*>* vec1 = new std::vector<Tile*>();
-		for (int y = 0; y < 25; y++)
-		{
-			vec1->push_back(new Tile(x, y));
-		}
 
-		tiles->push_back(vec1);
-	}
-	
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -163,7 +155,7 @@ void Engine::run()
 
 		// Render
 		// Clear the colorbuffer
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0,0,0,0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Activate shader
@@ -186,65 +178,53 @@ void Engine::run()
 		GLuint projectionLoc = glGetUniformLocation(textureShader->program, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		GLuint colorLoc = glGetUniformLocation(textureShader->program, "glowColor");
 
 		// Bind Textures using texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glUniform1i(glGetUniformLocation(textureShader->program, "ourTexture1"), 0);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glUniform1i(glGetUniformLocation(textureShader->program, "ourTexture2"), 1);
+
 
 		for(int i=0; i < world->getWorldObjects()->size(); i++)
 		{
 			WorldObject* object = world->getWorldObjects()->at(i);
+			object->program->use();
+			
+
+			GLuint modelLoc = glGetUniformLocation(object->program->program, "model");
+
+			GLuint viewLoc = glGetUniformLocation(object->program->program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLuint projectionLoc = glGetUniformLocation(object->program->program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+			glBindVertexArray(object->VAO);
+
+			glm::mat4 model;
+			model = glm::translate(model, glm::vec3(5, 10, 5));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
 			object->render();
+			glBindVertexArray(0);
 		}
 
+		
 		// Draw container
 		glBindVertexArray(VAO);
 
-		
+		Tile*** tiles = world->getTiles();
 
-		for(GLuint x = 0; x < tiles->size(); x++)
+		for(GLuint x = 0; x < world->getWidth(); x++)
 		{
-			std::vector<Tile*>* tileVec = tiles->at(x);
-
-			for(GLuint y = 0; y < tileVec->size(); y++)
+			for (GLuint y = 0; y < world->getHeight(); y++)
 			{
-				GLfloat dx, dy;
-				dx = x - camera->position.x;
-				dy = y - camera->position.z;
+				Tile* tile = tiles[x][y];
 
-				GLfloat distance = abs(sqrt(dx*dx + dy*dy));
+				glm::mat4 model;
+				model = glm::translate(model, glm::vec3(x, -5, y));
 
-				if (distance < 5)
-				{
-					glUniform1i(glGetUniformLocation(textureShader->program, "ourTexture1"), 0);
-				}
-				else
-				{
-					glUniform1i(glGetUniformLocation(textureShader->program, "ourTexture1"), 1);
-				}
-
-				Tile* tile = tileVec->at(y);
-
-				for(GLint z=0; z < distance && z < 6; z++)
-				{
-					
-					glm::mat4 model;
-					model = glm::translate(model, glm::vec3(x, z-5 , y));
-
-					glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-					glDrawArrays(GL_TRIANGLES, 0, 36);
-				}
-				
-
-				
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+				glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			}
-			
 		}
 
 		

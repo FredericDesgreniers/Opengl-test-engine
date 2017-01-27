@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include "TransitionalSweepObject.h"
+#include <sstream>
 
 InputDecoder::InputDecoder(std::string fileName):fileName(fileName)
 {
@@ -40,11 +41,16 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file)
 	{	
 		getline(file, line);
 
-		std::string::size_type sz;     // alias of size_t
+		std::stringstream  lineStream(line);
 
-		float x = std::stof(line, &sz);
-		float y = std::stof(line.substr(sz), &sz);
-		float z = std::stof(line.substr(sz));
+		std::string::size_type sz;     // alias of size_t
+		
+		float x;
+		lineStream >> x;
+		float y;
+		lineStream >> y;
+		float z;
+		lineStream >> z;
 
 		profileCurve->push_back(new glm::vec3(x, y, z));
 		std::cout << x << ", " << y << ", " << z << std::endl;
@@ -57,11 +63,17 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file)
 	{
 		getline(file, line);
 
+		std::stringstream  lineStream(line);
+
 		std::string::size_type sz;     // alias of size_t
 
-		float x = std::stof(line, &sz);
-		float y = std::stof(line.substr(sz), &sz);
-		float z = std::stof(line.substr(sz));
+		float x;
+		lineStream >> x;
+		float y;
+		lineStream >> y;
+		float z;
+		lineStream >> z;
+
 		trajectoryCurve->push_back(new glm::vec3(x, y, z));
 		std::cout << x << ", " << y << ", " << z << std::endl;
 	}

@@ -4,7 +4,7 @@
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
-	
+	std::cout << "Loading shader for " << vertexPath << " "<<fragmentPath<< std::endl;
 	std::string vertexCode;
 	std::string fragmentCode;
 
