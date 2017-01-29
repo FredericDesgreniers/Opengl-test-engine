@@ -311,7 +311,16 @@ void Engine::keyEvent(GLFWwindow* window, int key, int scancode, int action, int
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS) {
 		wireframe = !wireframe;
-		glPolygonMode(GL_FRONT_AND_BACK, wireframe?GL_LINE:GL_FILL);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	if (key == GLFW_KEY_X && action == GLFW_PRESS) {
+		wireframe = !wireframe;
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+		wireframe = !wireframe;
+		glPointSize(10.0f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	}
 
 	if(key == GLFW_KEY_O && action == GLFW_PRESS)
