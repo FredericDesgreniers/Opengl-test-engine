@@ -1,7 +1,5 @@
 #include "Engine.h"
-#include "Tile.h"
-#include <vector>
-#include "InputDecoder.h"
+
 
 Engine* Engine::instance;
 
@@ -36,11 +34,7 @@ void Engine::initialize()
 	world = new World(100,100);
 	world->generateRoads();
 	InputDecoder inputDecoder("input_a1.txt");
-	InputDecoder inputDecoder2("input_a1_2.txt");
-	InputDecoder inputDecoder3("input_a1_3.txt");
 	world->spawnWorldObject(inputDecoder.decodeWorldObject(0,0,0));
-	world->spawnWorldObject(inputDecoder2.decodeWorldObject(2,0,0));
-	world->spawnWorldObject(inputDecoder3.decodeWorldObject(4,0,0));
 
 
 }

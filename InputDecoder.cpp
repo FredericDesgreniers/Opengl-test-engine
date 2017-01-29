@@ -8,7 +8,8 @@
 
 InputDecoder::InputDecoder(std::string fileName):fileName(fileName)
 {
-	
+	std::cout << "het";
+
 }
 
 WorldObject* InputDecoder::decodeWorldObject(int x, int y, int z)

@@ -7,6 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Camera.h"
 #include "World.h"
+#include "Tile.h"
+#include <vector>
+#include "InputDecoder.h"
 
 class Engine
 {
