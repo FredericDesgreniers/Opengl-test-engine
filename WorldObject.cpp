@@ -8,12 +8,12 @@ WorldObject::WorldObject(int x, int y, int z):x(x), y(y), z(z)
 
 int WorldObject::getX()
 {
-	return y;
+	return x;
 }
 
 int WorldObject::getY()
 {
-	return x;
+	return y;
 }
 
 int WorldObject::getZ()

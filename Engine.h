@@ -1,8 +1,7 @@
 #pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "Shader.h"
-#include <SOIL/SOIL.h>
+ #include "Shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -48,7 +47,8 @@ private:
 	//mouse positions
 	GLfloat lastMouseX, lastMouseY;
 
-	
+	int selectedObject = 0;
+
 	// Set up vertex data (and buffer(s)) and attribute pointers
 	GLfloat vertices[36*5] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,

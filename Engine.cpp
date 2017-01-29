@@ -36,7 +36,13 @@ void Engine::initialize()
 	world = new World(100,100);
 	world->generateRoads();
 	InputDecoder inputDecoder("input_a1.txt");
-	world->spawnWorldObject(inputDecoder.decodeWorldObject());
+	InputDecoder inputDecoder2("input_a1_2.txt");
+	InputDecoder inputDecoder3("input_a1_3.txt");
+	world->spawnWorldObject(inputDecoder.decodeWorldObject(0,0,0));
+	world->spawnWorldObject(inputDecoder2.decodeWorldObject(2,0,0));
+	world->spawnWorldObject(inputDecoder3.decodeWorldObject(4,0,0));
+
+
 }
 
 void Engine::initGLFW()
@@ -72,11 +78,12 @@ void Engine::initGLEW()
 }
 void Engine::createShaders()
 {
-	textureShader = new Shader("shader.vs", "shader.fs");
+	//textureShader = new Shader("shader.vs", "shader.fs");
 }
 
 void Engine::loadTextures()
 {
+	/*
 
 	// ====================
 	// Texture 1
@@ -117,6 +124,7 @@ void Engine::loadTextures()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	SOIL_free_image_data(image);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	*/
 }
 
 void Engine::setupVertexes()
@@ -138,6 +146,8 @@ void Engine::setupVertexes()
 
 
 	glBindVertexArray(0); // Unbind VAO
+
+
 }
 
 void Engine::run()
@@ -159,7 +169,7 @@ void Engine::run()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Activate shader
-		textureShader->use();
+		//textureShader->use();
 
 
 
@@ -169,44 +179,49 @@ void Engine::run()
 		glm::mat4 projection;
 		projection = glm::perspective(camera->zoom, GLfloat(winWidth) / GLfloat(winHeight), 0.1f, 1000.0f);
 
-		
-		GLuint modelLoc = glGetUniformLocation(textureShader->program, "model");
-		
-		GLuint viewLoc = glGetUniformLocation(textureShader->program, "view");
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-		GLuint projectionLoc = glGetUniformLocation(textureShader->program, "projection");
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 
 		// Bind Textures using texture units
-
-
+		int j = 0;
+		Shader* program = world->getWorldObjects()->at(0)->program;
+		program->use();
 		for(int i=0; i < world->getWorldObjects()->size(); i++)
 		{
 			WorldObject* object = world->getWorldObjects()->at(i);
-			object->program->use();
+			
 			
 
-			GLuint modelLoc = glGetUniformLocation(object->program->program, "model");
+			GLuint modelLoc = glGetUniformLocation(program->program, "model");
 
-			GLuint viewLoc = glGetUniformLocation(object->program->program, "view");
+			GLuint viewLoc = glGetUniformLocation(program->program, "view");
 			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-			GLuint projectionLoc = glGetUniformLocation(object->program->program, "projection");
+			GLuint projectionLoc = glGetUniformLocation(program->program, "projection");
 			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+
+			GLuint addColor = glGetUniformLocation(program->program, "addColor");
+			glUniform3f(addColor, selectedObject == i ? 0.2f : 0.0f,0.0f,0.0f);
 
 			glBindVertexArray(object->VAO);
 
+			glm::vec3 rotation = object->rotation;
+
 			glm::mat4 model;
+			
 			model = glm::translate(model, glm::vec3(object->getX(), object->getY(), object->getZ()));
+			model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1, 0, 0));
+			model = glm::rotate(model, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+			model = glm::rotate(model, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
 			object->render();
+
+			j++;
 			glBindVertexArray(0);
 		}
 
-		
+		/*
 		// Draw container
 		glBindVertexArray(VAO);
 
@@ -226,13 +241,14 @@ void Engine::run()
 
 			}
 		}
-
+*		 */
 		
 		
 		glBindVertexArray(0);
 
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
+
 	}
 
 	// Properly de-allocate all resources once they've outlived their purpose
@@ -260,6 +276,15 @@ void Engine::onTick()
 		camera->processKeyboard(UP, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT))
 		camera->processKeyboard(DOWN, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_UP)) 
+		world->getWorldObjects()->at(selectedObject)->rotation.x -= deltaTime*100;
+	if (glfwGetKey(window, GLFW_KEY_DOWN))
+		world->getWorldObjects()->at(selectedObject)->rotation.x += deltaTime * 100;
+	if (glfwGetKey(window, GLFW_KEY_LEFT))
+		world->getWorldObjects()->at(selectedObject)->rotation.z += deltaTime * 100;
+	if (glfwGetKey(window, GLFW_KEY_RIGHT))
+		world->getWorldObjects()->at(selectedObject)->rotation.z -= deltaTime * 100;
+		
 
 
 
@@ -294,6 +319,26 @@ void Engine::keyEvent(GLFWwindow* window, int key, int scancode, int action, int
 		wireframe = !wireframe;
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe?GL_LINE:GL_FILL);
 	}
+
+	if(key == GLFW_KEY_O && action == GLFW_PRESS)
+	{
+		selectedObject--;
+		if(selectedObject < 0)
+		{
+			selectedObject = world->getWorldObjects()->size() - 1;
+		}
+		std::cout << "Selected Object: " << selectedObject << std::endl;
+	}
+	if(key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		selectedObject++;
+		if(selectedObject >= world->getWorldObjects()->size())
+		{
+			selectedObject = 0;
+		}
+		std::cout << "Selected Object: " << selectedObject << std::endl;
+	}
+
 
 
 	GLfloat cameraSpeed = 0.05f;
