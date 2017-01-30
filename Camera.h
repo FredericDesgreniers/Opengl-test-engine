@@ -29,6 +29,8 @@ public:
 	glm::vec3 right;
 	glm::vec3 worldUp;
 
+	bool lookAtOrigin = false;
+
 	GLfloat yaw;
 	GLfloat pitch;
 

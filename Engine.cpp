@@ -47,7 +47,6 @@ void Engine::initGLFW()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 }
 void Engine::initGLEW()
 {
@@ -56,6 +55,7 @@ void Engine::initGLEW()
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetWindowSizeCallback(window, window_size_callback);
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
 	// Initialize GLEW to setup the OpenGL Function pointers
@@ -278,7 +278,7 @@ void Engine::onTick()
 		world->getWorldObjects()->at(selectedObject)->rotation.z += deltaTime * 100;
 	if (glfwGetKey(window, GLFW_KEY_RIGHT))
 		world->getWorldObjects()->at(selectedObject)->rotation.z -= deltaTime * 100;
-		
+	
 
 
 
@@ -322,7 +322,13 @@ void Engine::keyEvent(GLFWwindow* window, int key, int scancode, int action, int
 		glPointSize(10.0f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	}
+	if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+		camera->lookAtOrigin = !camera->lookAtOrigin;
+	}
 
+	if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
 	if(key == GLFW_KEY_O && action == GLFW_PRESS)
 	{
 		selectedObject--;
@@ -370,4 +376,11 @@ void Engine::mouseEvent(GLFWwindow* window, double xpos, double ypos)
 void Engine::scrollEvent(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera->processMouseScrolls(yoffset);
+}
+
+void Engine::window_size_callback(GLFWwindow* window, int width, int height)
+{
+	getInstance()->winWidth = width;
+	getInstance()->winHeight = height;
+	glViewport(0, 0, width, height);
 }
