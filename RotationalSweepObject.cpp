@@ -7,7 +7,7 @@ RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<gl
 	//open assignment 1 shaders
 	program = new Shader("a1Shader.vs", "a1Shader.fs");
 	//get the size of the vertices array. 
-	size = profileCurve->size() * (span) * 6;
+	size = profileCurve->size() * (span) * 3;
 
 	//matrix of vertices
 	vertices = new GLfloat[size];
@@ -38,42 +38,40 @@ RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<gl
 			
 			float height = (float(p) / float(profileCurve->size()));
 			//translate the profile vector by the trajectory vector and add it to the vector array
-			vertices[index] = rVec.x;
-			vertices[index + 1] = rVec.y;
-			vertices[index + 2] = rVec.z;
-			vertices[index + 3] = height;
-			vertices[index + 4] = height;
-			vertices[index + 5] = 0;
-			index += 6;
+			vertices[index++] = rVec.x;
+			vertices[index++] = rVec.y;
+			vertices[index++] = rVec.z;
+
 
 			//if we're not in a bottom / left row, find the indices that compose the two triangles
-			//the two triangles compose the square that is to the bottom-left of the current vector
+			//the two triangles compose the square that is to the bottom-left of the current vector\
+
+			int currentIndex = index / 3;
 			if (s > 0 && p > 0)
 			{
 				//first triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex + 1] = index / 6 - 1 - 1;
-				indices[iIndex + 2] = index / 6 - 1 - profileCurve->size() - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = currentIndex - 1 - 1;
+				indices[iIndex++] = currentIndex - 1 - profileCurve->size() - 1;
+	
 
 				//second triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex + 1] = index / 6 - profileCurve->size() - 1;
-				indices[iIndex + 2] = index / 6 - 1 - profileCurve->size() - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = currentIndex - profileCurve->size() - 1;
+				indices[iIndex++] = currentIndex - 1 - profileCurve->size() - 1;
 			}else if (p > 0)
 			{
 				//first triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex + 1] = index / 6 - 1 - 1;
-				indices[iIndex + 2] = size /6 - 1 - profileCurve->size()+index/6 - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = currentIndex - 1 - 1;
+				indices[iIndex++] = size /3 - 1 - profileCurve->size()+ currentIndex - 1;
+	
 
 				//second triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex + 1] = size /6-profileCurve->size() + index/6 - 1;
-				indices[iIndex + 2] = size /6- profileCurve->size() +index/6 - 1 - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = size /3-profileCurve->size() + currentIndex - 1;
+				indices[iIndex++] = size /3- profileCurve->size() + currentIndex - 1 - 1;
+
 			}
 
 		}
@@ -125,11 +123,9 @@ RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<gl
 
 	//tell opengl to look at them in pairs of 3 (x,y,z)
 	//TODO add color here, so (x,y,z,r,g,b)?
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

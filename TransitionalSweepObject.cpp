@@ -13,7 +13,7 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 
 
 	//get the size of the vertices array. 
-	size = profileCurve->size() * trajectoryCurve->size() * 6;
+	size = profileCurve->size() * trajectoryCurve->size() * 3;
 	
 	//matrix of vertices
 	vertices = new GLfloat[size];
@@ -40,29 +40,27 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 			glm::vec3* tVec = trajectoryCurve->at(t);
 				
 			//translate the profile vector by the trajectory vector and add it to the vector array
-			vertices[index] = pVec->x + tVec->x;
-			vertices[index+1] = pVec->y + tVec->y;
-			vertices[index+2] = pVec->z + tVec->z;
-			vertices[index + 3] = height;
-			vertices[index + 4] = height;
-			vertices[index + 5] = 0;
-			index+= 6;
+			vertices[index++] = pVec->x + tVec->x;
+			vertices[index++] = pVec->y + tVec->y;
+			vertices[index++] = pVec->z + tVec->z;
 			
+			int currentIndex = index / 3;
+
 			//if we're not in a bottom / left row, find the indices that compose the two triangles
 			//the two triangles compose the square that is to the bottom-left of the current vector
 			if(t > 0 && p > 0)
 			{
 				//first triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex+1] = index / 6 - 1 - 1;
-				indices[iIndex+2] = index / 6 - 1-trajectoryCurve->size() - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = currentIndex - 1 - 1;
+				indices[iIndex++] = currentIndex - 1-trajectoryCurve->size() - 1;
+			
 				
 				//second triangle
-				indices[iIndex] = index / 6 - 1;
-				indices[iIndex + 1] = index / 6 - trajectoryCurve->size() - 1;
-				indices[iIndex + 2] = index / 6 - 1 - trajectoryCurve->size() - 1;
-				iIndex += 3;
+				indices[iIndex++] = currentIndex - 1;
+				indices[iIndex++] = currentIndex - trajectoryCurve->size() - 1;
+				indices[iIndex++] = currentIndex - 1 - trajectoryCurve->size() - 1;
+			
 			}
 
 		}
@@ -114,12 +112,10 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 
 	//tell opengl to look at them in pairs of 3 (x,y,z)
 	//TODO add color here, so (x,y,z,r,g,b)?
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	
+
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
