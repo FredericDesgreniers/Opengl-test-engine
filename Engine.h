@@ -122,4 +122,5 @@ private:
 	void scrollEvent(GLFWwindow* window, double xoffset, double yoffset);
 
 	static void window_size_callback(GLFWwindow* window, int width, int height);
+	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 };

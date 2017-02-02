@@ -40,7 +40,7 @@ class WorldObject* InputDecoder::decodeRotationalSweep(std::ifstream& file, int 
 	int span = std::stoi(line);
 	getline(file, line);
 	int profileCurveNum = stoi(line);
-	std::cout << "Decoding " << profileCurveNum << " profile curve points..." << std::endl;
+	//std::cout << "Decoding " << profileCurveNum << " profile curve points..." << std::endl;
 	std::vector<glm::vec3*>* profileCurve = new std::vector<glm::vec3*>;
 	for (int i = 0; i < profileCurveNum; i++)
 	{
@@ -58,7 +58,7 @@ class WorldObject* InputDecoder::decodeRotationalSweep(std::ifstream& file, int 
 		lineStream >> y;
 
 		profileCurve->push_back(new glm::vec3(x, y, z));
-		std::cout << x << ", " << y << ", " << z << std::endl;
+		//std::cout << x << ", " << y << ", " << z << std::endl;
 	}
 
 	return new RotationalSweepObject(x,y,z, profileCurve, span);
@@ -70,7 +70,7 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file, int x, i
 	std::string line;
 	getline(file, line);
 	int profileCurveNum = stoi(line);
-	std::cout << "Decoding " << profileCurveNum << " profile curve points..." << std::endl;
+	//std::cout << "Decoding " << profileCurveNum << " profile curve points..." << std::endl;
 	std::vector<glm::vec3*>* profileCurve = new std::vector<glm::vec3*>;
 	for(int i=0; i < profileCurveNum; i++)
 	{	
@@ -88,11 +88,11 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file, int x, i
 		lineStream >> z;
 
 		profileCurve->push_back(new glm::vec3(x, y, z));
-		std::cout << x << ", " << y << ", " << z << std::endl;
+		//std::cout << x << ", " << y << ", " << z << std::endl;
 	}
 	getline(file, line);
 	int trajectoryCurveNum = stoi(line);
-	std::cout << "Decoding " << trajectoryCurveNum << " trajectory curve points..." << std::endl;
+	//std::cout << "Decoding " << trajectoryCurveNum << " trajectory curve points..." << std::endl;
 	std::vector<glm::vec3*>* trajectoryCurve = new std::vector<glm::vec3*>;
 	for (int i = 0; i < trajectoryCurveNum; i++)
 	{
@@ -110,7 +110,7 @@ WorldObject* InputDecoder::decodeTransitionalSweep(std::ifstream& file, int x, i
 		lineStream >> z;
 
 		trajectoryCurve->push_back(new glm::vec3(x, y, z));
-		std::cout << x << ", " << y << ", " << z << std::endl;
+		//std::cout << x << ", " << y << ", " << z << std::endl;
 	}
 
 	TransitionalSweepObject* obj = new TransitionalSweepObject(x,y,z, profileCurve, trajectoryCurve);

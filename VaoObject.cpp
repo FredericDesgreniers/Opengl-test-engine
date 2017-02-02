@@ -119,3 +119,12 @@ int VaoObject::getEboSize()
 }
 
 
+GLuint VaoObject::getEBO()
+{
+	return EBO;
+}
+
+GLuint VaoObject::getVBO()
+{
+	return VBO;
+}

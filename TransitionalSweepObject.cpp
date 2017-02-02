@@ -9,7 +9,7 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 {
 	//open assignment 1 shaders
 
-	program = new Shader("a1Shader.vs", "a1Shader.fs");
+	//program = new Shader("a1Shader.vs", "a1Shader.fs");
 
 
 	//get the size of the vertices array. 
@@ -34,7 +34,7 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 			
 
 			//translate the profile vector by the trajectory vector and add it to the vector array
-			vao->addToVBO(*pVec + *tVec);
+			vao->addToVBO(*pVec + *tVec - *profileCurve->at(0));
 
 			//if we're not in a bottom / left row, find the indices that compose the two triangles
 			//the two triangles compose the square that is to the bottom-left of the current vector
@@ -47,18 +47,13 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 				int topLeftPoint = topRightPoint - trajectoryCurve->size();
 				int bottomLeftPoint = topLeftPoint - 1;
 
-				vao->addTriangleToEBO(topRightPoint, bottomRightPoint, bottomLeftPoint);
+				vao->addTrianglesFromPointsToEBO(topRightPoint, bottomRightPoint, topLeftPoint, bottomLeftPoint);
 
-				vao->addTriangleToEBO(topRightPoint, topLeftPoint, bottomLeftPoint);
-
-			
 			}
 
 		}
 
 	}
-	vao->printEBO();
-	vao->printVBO();
 	vao->setupVao();
 }
 

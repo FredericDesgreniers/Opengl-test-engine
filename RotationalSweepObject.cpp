@@ -5,7 +5,7 @@
 RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<glm::vec3*>* profileCurve, int span):WorldObject(x,y,z)
 {
 	//open assignment 1 shaders
-	program = new Shader("a1Shader.vs", "a1Shader.fs");
+	//program = new Shader("a1Shader.vs", "a1Shader.fs");
 
 	//get the size of the vertices array. 
 	int size = profileCurve->size() * (span) * 3;

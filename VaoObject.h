@@ -24,10 +24,12 @@ public:
 	int getCurrentEboIndex();
 
 	GLuint getVAO();
+	GLuint getEBO();
+	GLuint getVBO();
 
 	int getEboSize();
 private:
-	GLuint VAO, VBO, EBO;
+	GLuint VAO, VBO, EBO = -1;
 
 	int vboSize;
 	int eboSize;
