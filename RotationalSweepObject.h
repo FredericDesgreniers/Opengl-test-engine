@@ -13,10 +13,4 @@ public:
 
 	void render() override;
 
-
-private:
-	int size;
-	GLfloat* vertices;
-	GLuint* indices;
-	int indicesSize;
 };

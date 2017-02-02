@@ -2,6 +2,7 @@
 #include <GL/GLEW.H>
 #include "Shader.h"
 #include <glm/detail/type_vec3.hpp>
+#include "VaoObject.h"
 
 class WorldObject
 {
@@ -11,13 +12,16 @@ public:
 	int getX();
 	int getY();
 	int getZ();
-	GLuint VBO, VAO, EBO;
+
 	virtual void render();
+
+	VaoObject* getVaoObject();
+
 
 	glm::vec3 rotation;
 protected:
-	int vertexNum;
 	int x, y, z;
+	VaoObject* vao;
 private:
 	
 	

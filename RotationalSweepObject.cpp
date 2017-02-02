@@ -6,22 +6,13 @@ RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<gl
 {
 	//open assignment 1 shaders
 	program = new Shader("a1Shader.vs", "a1Shader.fs");
+
 	//get the size of the vertices array. 
-	size = profileCurve->size() * (span) * 3;
-
-	//matrix of vertices
-	vertices = new GLfloat[size];
-
+	int size = profileCurve->size() * (span) * 3;
 	//number of indices (2 triangles per "square")
-	indicesSize = (profileCurve->size() - 1) * (span) * 2 * 3;
+	int indicesSize = (profileCurve->size() - 1) * (span) * 2 * 3;
 
-	//indices matrix
-	indices = new GLuint[indicesSize];
-	std::cout << "Span of " << span << std::endl;
-	//indice counter
-	int iIndex = 0;
-	//vertex counter
-	int index = 0;
+	vao = new VaoObject(size, indicesSize);
 
 	float angleSize = glm::radians(360.0f / float(span));
 
@@ -36,104 +27,37 @@ RotationalSweepObject::RotationalSweepObject(int x, int y, int z, std::vector<gl
 			glm::mat4x4 rotMatrix = glm::mat4x4(1.0f);
 			glm::vec4 rVec = pVec * glm::rotate(rotMatrix,angleSize * s, glm::vec3(0, 1, 0));
 			
-			float height = (float(p) / float(profileCurve->size()));
-			//translate the profile vector by the trajectory vector and add it to the vector array
-			vertices[index++] = rVec.x;
-			vertices[index++] = rVec.y;
-			vertices[index++] = rVec.z;
+			vao->addToVBO(rVec);
 
-
-			//if we're not in a bottom / left row, find the indices that compose the two triangles
-			//the two triangles compose the square that is to the bottom-left of the current vector\
-
-			int currentIndex = index / 3;
-			if (s > 0 && p > 0)
+			if (p > 0)
 			{
-				//first triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = currentIndex - 1 - 1;
-				indices[iIndex++] = currentIndex - 1 - profileCurve->size() - 1;
-	
+				int currentIndex = vao->getCurrentVboIndex() / 3 - 1;
 
-				//second triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = currentIndex - profileCurve->size() - 1;
-				indices[iIndex++] = currentIndex - 1 - profileCurve->size() - 1;
-			}else if (p > 0)
-			{
-				//first triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = currentIndex - 1 - 1;
-				indices[iIndex++] = size /3 - 1 - profileCurve->size()+ currentIndex - 1;
-	
+				int topRightPoint = currentIndex;
+				int bottomRightPoint = topRightPoint - 1;
+				int topLeftPoint = topRightPoint - profileCurve->size();
+				int bottomLeftPoint = topLeftPoint - 1;
 
-				//second triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = size /3-profileCurve->size() + currentIndex - 1;
-				indices[iIndex++] = size /3- profileCurve->size() + currentIndex - 1 - 1;
+				if (s > 0) {
+					vao->addTrianglesFromPointsToEBO(topRightPoint, bottomRightPoint, topLeftPoint, bottomLeftPoint);
+				}else
+				{
+					int endTopPoint = size / 3 - profileCurve->size() + currentIndex;
+					int endBottomPoint = endTopPoint - 1;
 
+					vao->addTrianglesFromPointsToEBO(topRightPoint, bottomRightPoint, endTopPoint, endBottomPoint);
+				}
 			}
 
 		}
 	}
-	//set the vertex num, starts at 1 instead of 0 so add 1
-	vertexNum = index + 1;
-	//print the two matrix arrays for debug 
-	/*
-	std::cout << "Vertexes " << size << std::endl;
-	int c = 0;
-	for (int i = 0; i < size; i++)
-	{
-		printf("%f ", vertices[i]);
-		c++;
-		if (c > 2)
-		{
-			c = 0;
-			std::cout << std::endl;
-		}
-	}
-*	 
-	int c = 0;
-	std::cout << "Indices " << indicesSize << std::endl;
-	for (int i = 0; i < indicesSize; i++)
-	{
-		printf("%d ", indices[i]);
-		c++;
-		if (c > 2)
-		{
-			c = 0;
-			std::cout << std::endl;
-		}
-	}
-//*	 */
-	//bind the VAO/VBO/EBO
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 
-	glBindVertexArray(VAO);
+	vao->setupVao();
 
-	//bind the vertices array
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)*size, vertices, GL_STATIC_DRAW);
-
-	//bind indices array
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices)*indicesSize, indices, GL_STATIC_DRAW);
-
-	//tell opengl to look at them in pairs of 3 (x,y,z)
-	//TODO add color here, so (x,y,z,r,g,b)?
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	std::cout << size << std::endl;
 }
 
 void RotationalSweepObject::render()
 {
-	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, vao->getEboSize(), GL_UNSIGNED_INT, 0);
 }
 

@@ -13,21 +13,14 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 
 
 	//get the size of the vertices array. 
-	size = profileCurve->size() * trajectoryCurve->size() * 3;
+	int size = profileCurve->size() * trajectoryCurve->size() * 3;
 	
-	//matrix of vertices
-	vertices = new GLfloat[size];
+
 	
 	//number of indices (2 triangles per "square")
-	indicesSize = (profileCurve->size()-1) * (trajectoryCurve->size()-1) *2*3;
-	
-	//indices matrix
-	indices = new GLuint[indicesSize];
-	
-	//indice counter
-	int iIndex = 0;
-	//vertex counter
-	int index = 0;
+	int indicesSize = (profileCurve->size()-1) * (trajectoryCurve->size()-1) *2*3;
+	vao = new VaoObject(size, indicesSize);
+
 
 	//go through every vector on the profile curve
 	for(int p=0; p < profileCurve->size(); p++)
@@ -38,94 +31,40 @@ TransitionalSweepObject::TransitionalSweepObject(int x, int y, int z, std::vecto
 		{
 			float height = (float(p) / float(profileCurve->size()));
 			glm::vec3* tVec = trajectoryCurve->at(t);
-				
-			//translate the profile vector by the trajectory vector and add it to the vector array
-			vertices[index++] = pVec->x + tVec->x;
-			vertices[index++] = pVec->y + tVec->y;
-			vertices[index++] = pVec->z + tVec->z;
 			
-			int currentIndex = index / 3;
+
+			//translate the profile vector by the trajectory vector and add it to the vector array
+			vao->addToVBO(*pVec + *tVec);
 
 			//if we're not in a bottom / left row, find the indices that compose the two triangles
 			//the two triangles compose the square that is to the bottom-left of the current vector
 			if(t > 0 && p > 0)
 			{
-				//first triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = currentIndex - 1 - 1;
-				indices[iIndex++] = currentIndex - 1-trajectoryCurve->size() - 1;
-			
-				
-				//second triangle
-				indices[iIndex++] = currentIndex - 1;
-				indices[iIndex++] = currentIndex - trajectoryCurve->size() - 1;
-				indices[iIndex++] = currentIndex - 1 - trajectoryCurve->size() - 1;
+				int currentIndex = vao->getCurrentVboIndex() / 3 - 1;
+
+				int topRightPoint = currentIndex;
+				int bottomRightPoint = topRightPoint - 1;
+				int topLeftPoint = topRightPoint - trajectoryCurve->size();
+				int bottomLeftPoint = topLeftPoint - 1;
+
+				vao->addTriangleToEBO(topRightPoint, bottomRightPoint, bottomLeftPoint);
+
+				vao->addTriangleToEBO(topRightPoint, topLeftPoint, bottomLeftPoint);
+
 			
 			}
 
 		}
 
 	}
-
-	//set the vertex num, starts at 1 instead of 0 so add 1
-	vertexNum = index+1;
-	//print the two matrix arrays for debug 
-	std::cout << "Vertexes " << size << std::endl;
-	int c = 0;
-	for (int i = 0; i < size; i++)
-	{
-		printf("%f ",vertices[i]);
-		c++;
-		if(c > 2)
-		{
-			c = 0;
-			std::cout << std::endl;
-		}
-	}
-	c = 0;
-	std::cout << "Indices " << indicesSize << std::endl;
-	for (int i = 0; i < indicesSize; i++)
-	{
-		printf("%d ", indices[i]);
-		c++;
-		if (c > 2)
-		{
-			c = 0;
-			std::cout << std::endl;
-		}
-	}
-
-	//bind the VAO/VBO/EBO
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-	
-	//bind the vertices array
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices)*size, vertices, GL_STATIC_DRAW);
-	
-	//bind indices array
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices)*indicesSize, indices, GL_STATIC_DRAW);
-
-	//tell opengl to look at them in pairs of 3 (x,y,z)
-	//TODO add color here, so (x,y,z,r,g,b)?
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-
-
-
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	std::cout << size << std::endl;
+	vao->printEBO();
+	vao->printVBO();
+	vao->setupVao();
 }
 
 void TransitionalSweepObject::render()
 {
 	//render as a triangle
-	glDrawElements(GL_TRIANGLES, indicesSize, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, vao->getEboSize(), GL_UNSIGNED_INT, 0);
 	
 }

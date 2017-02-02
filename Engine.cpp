@@ -197,7 +197,7 @@ void Engine::run()
 			GLuint addColor = glGetUniformLocation(program->program, "addColor");
 			glUniform3f(addColor, selectedObject == i ? 0.2f : 0.0f,0.0f,0.0f);
 
-			glBindVertexArray(object->VAO);
+			glBindVertexArray(object->getVaoObject()->getVAO());
 
 			glm::vec3 rotation = object->rotation;
 

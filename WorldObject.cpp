@@ -27,3 +27,7 @@ void WorldObject::render()
 	std::cout << "rendering world object" << std::endl;
 }
 
+VaoObject* WorldObject::getVaoObject()
+{
+	return vao;
+}
