@@ -18,8 +18,8 @@ Engine* Engine::getInstance()
 
 Engine::Engine()
 {
-	winWidth = 1400;
-	winHeight = 920;
+	winWidth = 800;
+	winHeight = 800;
 	initialize();
 }
 
